@@ -1,0 +1,55 @@
+name: Daily auto publisher
+
+on:
+  schedule:
+    # GitHub cron 使用 UTC
+    # UTC 10:00 = 北京时间 18:00
+    - cron: "0 10 * * *"
+
+  # 允许在 Actions 页面手动运行
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-auto-publisher
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Generate pages and link collections
+        run: python generate.py
+
+      - name: Commit generated files
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add posts daily-links latest-links.txt README.md
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "docs: publish daily website indexes"
+
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
