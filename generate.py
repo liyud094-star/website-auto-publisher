@@ -454,7 +454,7 @@ def main() -> None:
 - 当日编号：{post_code}
 - 本批数量：{len(selected)}
 - 页面状态：待复核
-- 生成方式：GitHub Actions 自动生成
+
 
 {body}
 
