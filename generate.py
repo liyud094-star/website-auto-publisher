@@ -64,7 +64,7 @@ DISCLAIMERS = [
 def load_config() -> dict:
     default = {
         "posts_per_day": 20,
-        "domains_per_post": 6,
+        "domains_per_post": 20,
         "timezone": "Asia/Shanghai",
     }
 
